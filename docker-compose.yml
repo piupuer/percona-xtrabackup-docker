@@ -1,0 +1,37 @@
+version: '3'
+services:
+  # 数据库
+  backup-mysql:
+    # 容器名称
+    container_name: backup-mysql
+    build:
+      # 指定设定上下文根目录，然后以该目录为准指定Dockerfile
+      context: .
+      dockerfile: ./Dockerfile
+    # 重启策略: 容器退出时总是重启容器
+#    restart: always
+    ports:
+      # 避免端口冲突, 宿主机不用3306
+      - 33306:3306
+    # 设置环境变量
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    # 自定义命令
+    command:
+      # utf8
+      # 不区分大小写
+      # mysql8.0需要设置原生密码, 否则可能无法登录
+      # 增大数据包, 默认值1M
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --lower_case_table_names=1
+      --default-authentication-plugin=mysql_native_password
+      --max_allowed_packet=128M
+    # 挂载文件
+    volumes:
+      - ./data/bak:/root/bak
+      - ./data/mysql:/var/lib/mysql
+
